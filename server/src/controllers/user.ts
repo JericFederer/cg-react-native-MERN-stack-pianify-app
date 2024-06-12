@@ -1,13 +1,14 @@
 import { RequestHandler } from "express";
-import nodemailer from 'nodemailer';
-import path from "path";
+import { isValidObjectId } from 'mongoose';
+import crypto from 'crypto';
 
-import { CreateUser } from "../@types/user";
 import User from "../models/user";
 import EmailVerificationToken from "../models/emailVerificationToken";
-import { MAILTRAP_PASSWORD, MAILTRAP_USER } from "../utils/variable";
+import PasswordResetToken from "../models/passwordResetToken";
+import { CreateUser, VerifyEmailRequest } from "../@types/user";
 import { generateOtpToken } from "../utils/helper";
-import { generateTemplate } from "../mail/template";
+import { sendVerificationMail, sendPasswordResetLink } from "../utils/mail";
+import { PASSWORD_RESET_LINK } from "../utils/variable";
 
 export const create: RequestHandler = async (req: CreateUser, res) => {
   const { name, email, password } = req.body;
@@ -17,49 +18,129 @@ export const create: RequestHandler = async (req: CreateUser, res) => {
     password
   });
 
-  const transport = nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
-    auth: {
-      user: MAILTRAP_USER,
-      pass: MAILTRAP_PASSWORD
-    }
+  const otpToken = generateOtpToken();
+
+  // await EmailVerificationToken.create({
+  //   owner: newUser._id,
+  //   token: otpToken
+  // });
+
+  sendVerificationMail(otpToken, {
+    name,
+    email,
+    userId: newUser._id.toString()
+  })
+
+  res.status(201).json({
+    newUser: {
+      id: newUser._id.toString(),
+      name,
+      email
+    } 
+  });
+}
+
+export const verifyEmail: RequestHandler = async (req: VerifyEmailRequest, res) => {
+  const { token, userId } = req.body;
+
+  const verificationToken = await EmailVerificationToken.findOne({
+    owner: userId
+  })
+
+  if (!verificationToken) {
+    return res
+      .status(403)
+      .json({ error: "Invalid token." })
+  }
+
+  const isVerified = await verificationToken.compareToken(token);
+
+  if (!isVerified) {
+    return res
+      .status(403)
+      .json({ error: "Invalid token." })
+  }
+
+  await User.findByIdAndUpdate(userId, {
+    verified: true
+  })
+
+  await EmailVerificationToken.findByIdAndDelete(verificationToken._id);
+
+  res.json({
+    message: "Your email has been verified."
+  })
+}
+
+export const resendVerificationToken: RequestHandler = async (req, res) => {
+  const { userId } = req.body;
+
+  if (!isValidObjectId(userId)) {
+    return res
+      .status(403)
+      .json({
+        error: "Invalid request."
+      })
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res
+      .status(403)
+      .json({
+        error: "Invalid request."
+      })
+  }
+
+  await EmailVerificationToken.findOneAndDelete({
+    owner: userId
   });
 
   const otpToken = generateOtpToken();
 
-  await EmailVerificationToken.create({
-    owner: newUser._id,
-    token: otpToken,
+  sendVerificationMail(otpToken, {
+    name: user?.name,
+    email: user?.email,
+    userId: user?._id.toString()
   })
 
-  const welcomeMessage = `Hi ${ name }, welcome to Pianify! Use the given OTP to verify your email.`
+  res.json({
+    message: "Token has been sent. Please check your email."
+  })
+}
 
-  transport.sendMail({
-    to: newUser.email,
-    from: "authThisEmail@pianify.com",
-    subject: "Welcome message",
-    html: generateTemplate({
-      title: "Welcome to Pianify",
-      message: welcomeMessage,
-      logo: "cid:logo",
-      banner: "cid:welcome",
-      link: "#",
-      btnTitle: otpToken,
-    }),
-    attachments: [
-      {
-        filename: "logo.png",
-        path: path.join(__dirname, "../mail/logo.png"),
-        cid: "logo",
-      },
-      {
-        filename: "welcome.png",
-        path: path.join(__dirname, "../mail/welcome.png"),
-        cid: "welcome",
-      },
-    ],
+export const generatePasswordResetLink: RequestHandler = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({
+        error: "User account doesn't exist."
+      })
+  }
+
+  await PasswordResetToken.findOneAndDelete({
+    owner: user._id,
   });
 
-  res.status(201).json({ newUser });
+  const passwordResetToken = crypto.randomBytes(36).toString("hex")
+
+  await PasswordResetToken.create({
+    owner: user._id,
+    token: passwordResetToken
+  })
+
+  const passwordResetLink = `${ PASSWORD_RESET_LINK }?token=${ passwordResetToken }$userId=${ user._id }`
+
+  sendPasswordResetLink({
+    email,
+    link: passwordResetLink
+  })
+
+  res.json({
+    passwordResetLink
+  })
 }
