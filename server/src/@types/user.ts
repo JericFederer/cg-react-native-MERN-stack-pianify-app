@@ -14,3 +14,15 @@ export interface VerifyEmailRequest extends Request {
     userId: string;
   }
 }
+
+export interface resendVerificationTokenRequest extends Request {
+  body: {
+    userId: string;
+  }
+}
+
+export interface generatePasswordResetLinkRequest extends Request {
+  body: {
+    email: string;
+  }
+}

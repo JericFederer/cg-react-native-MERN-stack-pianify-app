@@ -5,12 +5,20 @@ import crypto from 'crypto';
 import User from "../models/user";
 import EmailVerificationToken from "../models/emailVerificationToken";
 import PasswordResetToken from "../models/passwordResetToken";
-import { CreateUser, VerifyEmailRequest } from "../@types/user";
+import {
+  CreateUser,
+  VerifyEmailRequest,
+  resendVerificationTokenRequest,
+  generatePasswordResetLinkRequest
+} from "../@types/user";
 import { generateOtpToken } from "../utils/helper";
-import { sendVerificationMail, sendPasswordResetLink } from "../utils/mail";
+import { sendVerificationMail, sendPasswordResetLink, sendPasswordResetSuccessEmail } from "../utils/mail";
 import { PASSWORD_RESET_LINK } from "../utils/variable";
 
-export const create: RequestHandler = async (req: CreateUser, res) => {
+export const create: RequestHandler = async (
+  req: CreateUser,
+  res
+) => {
   const { name, email, password } = req.body;
   const newUser = await User.create({
     name,
@@ -40,7 +48,10 @@ export const create: RequestHandler = async (req: CreateUser, res) => {
   });
 }
 
-export const verifyEmail: RequestHandler = async (req: VerifyEmailRequest, res) => {
+export const verifyEmail: RequestHandler = async (
+  req: VerifyEmailRequest,
+  res
+) => {
   const { token, userId } = req.body;
 
   const verificationToken = await EmailVerificationToken.findOne({
@@ -72,7 +83,10 @@ export const verifyEmail: RequestHandler = async (req: VerifyEmailRequest, res) 
   })
 }
 
-export const resendVerificationToken: RequestHandler = async (req, res) => {
+export const resendVerificationToken: RequestHandler = async (
+  req: resendVerificationTokenRequest,
+  res
+) => {
   const { userId } = req.body;
 
   if (!isValidObjectId(userId)) {
@@ -110,7 +124,10 @@ export const resendVerificationToken: RequestHandler = async (req, res) => {
   })
 }
 
-export const generatePasswordResetLink: RequestHandler = async (req, res) => {
+export const generatePasswordResetLink: RequestHandler = async (
+  req: generatePasswordResetLinkRequest,
+  res
+) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
 
@@ -125,15 +142,15 @@ export const generatePasswordResetLink: RequestHandler = async (req, res) => {
   await PasswordResetToken.findOneAndDelete({
     owner: user._id,
   });
-
+  
   const passwordResetToken = crypto.randomBytes(36).toString("hex")
-
+  
   await PasswordResetToken.create({
     owner: user._id,
     token: passwordResetToken
   })
 
-  const passwordResetLink = `${ PASSWORD_RESET_LINK }?token=${ passwordResetToken }$userId=${ user._id }`
+  const passwordResetLink = `${ PASSWORD_RESET_LINK }?token=${ passwordResetToken }&userId=${ user._id }`
 
   sendPasswordResetLink({
     email,
@@ -142,5 +159,58 @@ export const generatePasswordResetLink: RequestHandler = async (req, res) => {
 
   res.json({
     passwordResetLink
+  })
+}
+
+export const validGrantAccess: RequestHandler = async (
+  req,
+  res
+) => {
+  res.json({
+    valid: true
+  })
+}
+
+export const updatePassword: RequestHandler = async (
+  req,
+  res
+) => {
+  const { password, userId } = req.body;
+
+  const user = await User.findById(userId)
+
+  if (!user) {
+    return res
+      .status(403)
+      .json({
+        message: "Unauthorized access."
+      })
+  }
+
+  const newPasswordIsSameWithOldPassword = await user.comparePassword(password);
+
+  if (newPasswordIsSameWithOldPassword) {
+    return res
+      .status(422)
+      .json({
+        error: "Entered password is the same as the old password."
+      })
+  }
+
+  user.password = password;
+
+  await user.save()
+
+  await PasswordResetToken.findOneAndDelete({
+    owner: user._id
+  })
+
+  sendPasswordResetSuccessEmail(
+    user.name,
+    user.email
+  )
+
+  res.json({
+    message: "Password has been successfully updated."
   })
 }
