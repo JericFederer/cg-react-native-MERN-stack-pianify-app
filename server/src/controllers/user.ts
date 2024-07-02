@@ -1,10 +1,8 @@
 import { RequestHandler } from "express";
 import { isValidObjectId } from 'mongoose';
 import crypto from 'crypto';
+import jwt from "jsonwebtoken";
 
-import User from "../models/user";
-import EmailVerificationToken from "../models/emailVerificationToken";
-import PasswordResetToken from "../models/passwordResetToken";
 import {
   CreateUser,
   VerifyEmailRequest,
@@ -13,7 +11,10 @@ import {
 } from "../@types/user";
 import { generateOtpToken } from "../utils/helper";
 import { sendVerificationMail, sendPasswordResetLink, sendPasswordResetSuccessEmail } from "../utils/mail";
-import { PASSWORD_RESET_LINK } from "../utils/variable";
+import { JWT_SECRET, PASSWORD_RESET_LINK } from "../utils/variable";
+import User from "../models/user";
+import EmailVerificationToken from "../models/emailVerificationToken";
+import PasswordResetToken from "../models/passwordResetToken";
 
 export const create: RequestHandler = async (
   req: CreateUser,
@@ -213,4 +214,59 @@ export const updatePassword: RequestHandler = async (
   res.json({
     message: "Password has been successfully updated."
   })
+}
+
+export const signIn: RequestHandler = async (
+  req,
+  res
+) => {
+  const { password, email } = req.body;
+
+  const user = await User.findOne({
+    email
+  })
+
+  if (!user) {
+    return res.status(403).json({
+      error: "Email/Password mismatch."
+    })
+  }
+
+  // * Compare the password
+  const passwordIsTheSame = user.comparePassword(password);
+  
+  let passwordIsTheSameAwait: boolean = false;
+
+  if (passwordIsTheSame instanceof Promise) {
+    passwordIsTheSameAwait = await passwordIsTheSame;
+  }
+  
+  if (!passwordIsTheSame || !passwordIsTheSameAwait) {
+    return res.status(403).json({
+      error: "Email/Password mismatch."
+    })
+  }
+
+  // * Generate token
+  const jwtToken = jwt.sign(
+    { userId: user._id },
+    JWT_SECRET
+  );
+
+  user.tokens.push(jwtToken);
+
+  await user.save();
+
+  res.json({
+    profile: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      verified: user.verified,
+      avatar: user.avatar?.url,
+      followers: user.followers.length,
+      followings: user.followings.length,
+    },
+    jwtToken,
+  });
 }

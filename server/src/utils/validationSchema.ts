@@ -55,3 +55,14 @@ export const UpdatePasswordSchema = yup.object().shape({
     .required("Password field is empty.")
     .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[1-9]).{3,}$/, "Password must have a minimum of 3 characters and must also have numerical characters.")
 });
+
+export const SignInValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .required("Email field is empty.")
+    .email("Email provided is invalid"),
+  password: yup
+    .string()
+    .trim()
+    .required("Password field is empty."),
+})
