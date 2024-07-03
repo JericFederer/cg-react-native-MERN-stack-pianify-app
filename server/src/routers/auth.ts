@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { JwtPayload, verify } from "jsonwebtoken";
-import { JWT_SECRET } from "#/utils/variable";
 
 import { CreateUserSchema, SignInValidationSchema, TokenAndIDValidationSchema, UpdatePasswordSchema } from "../utils/validationSchema";
 import { validate } from "../middleware/validator";
@@ -11,11 +9,13 @@ import {
   generatePasswordResetLink,
   validGrantAccess,
   updatePassword,
-  signIn
-} from "../controllers/user";
+  signIn,
+  updateProfile,
+  sendProfile,
+  logOut
+} from "../controllers/auth";
 import { isValidPasswordResetToken, mustBeAuthenticated } from "../middleware/auth";
 import fileParser from "#/middleware/fileParser";
-
 
 const authRouter = Router();
 
@@ -27,7 +27,8 @@ authRouter.post("/password-reset", generatePasswordResetLink);
 authRouter.post("/verify-password-reset-token", validate(TokenAndIDValidationSchema), isValidPasswordResetToken, validGrantAccess);
 authRouter.post("/update-password", validate(UpdatePasswordSchema), isValidPasswordResetToken, updatePassword);
 authRouter.post("/sign-in", validate(SignInValidationSchema), signIn);
-authRouter.get("/is-auth", mustBeAuthenticated, (req, res) => res.json({ profile: req.user }));
-authRouter.post('/update-profile', fileParser)
+authRouter.get("/is-auth", mustBeAuthenticated, sendProfile);
+authRouter.post('/update-profile', mustBeAuthenticated, fileParser, updateProfile);
+authRouter.post('/log-out', mustBeAuthenticated, logOut);
 
 export default authRouter;

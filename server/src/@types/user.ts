@@ -4,14 +4,15 @@ declare global {
   namespace Express {
     interface Request {
       user: {
-        id: any,
-        name: string,
-        email: string,
-        verified: boolean,
-        avatar?: string,
-        followers: number,
-        followings: number,
+        id: any;
+        name: string;
+        email: string;
+        verified: boolean;
+        avatar?: string;
+        followers: number;
+        followings: number;
       }
+      token: string;
     }
   }
 }

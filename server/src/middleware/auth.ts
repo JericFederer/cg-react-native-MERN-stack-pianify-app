@@ -57,7 +57,9 @@ export const mustBeAuthenticated: RequestHandler = async (req, res, next) => {
     avatar: user.avatar?.url,
     followers: user.followers.length,
     followings: user.followings.length,
-  },
+  };
+
+  req.token = token;
   
   next();
 } 
