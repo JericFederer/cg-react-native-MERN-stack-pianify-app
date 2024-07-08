@@ -9,6 +9,6 @@ import fileParser from "#/middleware/fileParser";
 const audioRouter = Router();
 
 audioRouter.post("/create", mustBeAuthenticated, isVerified, fileParser, validate(AudioValidationSchema), createAudio);
-audioRouter.post("/:audioId", mustBeAuthenticated, isVerified, fileParser, validate(AudioValidationSchema), updateAudio);
+audioRouter.patch("/:audioId", mustBeAuthenticated, isVerified, fileParser, validate(AudioValidationSchema), updateAudio);
 
 export default audioRouter;
