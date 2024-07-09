@@ -2,7 +2,7 @@ import { categories, categoriesTypes } from "#/utils/audio_category";
 import { Model, models, model, ObjectId, Schema } from "mongoose";
 
 export interface AudioDocument<T = ObjectId> {
-  _id?: ObjectId;
+  _id: ObjectId;
   title: string;
   about: string;
   owner: T;
@@ -16,6 +16,7 @@ export interface AudioDocument<T = ObjectId> {
   };
   likes: ObjectId[];
   category: categoriesTypes;
+  createdAt: Date;
 }
 
 const AudioSchema = new Schema<AudioDocument>(
