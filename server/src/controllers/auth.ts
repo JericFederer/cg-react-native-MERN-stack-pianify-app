@@ -24,18 +24,18 @@ export const create: RequestHandler = async (
   res
 ) => {
   const { name, email, password } = req.body;
+  const oldUser = await User.findOne({ email });
+
+  if (oldUser) {
+    return res.status(403).json({ error: "Email is already in use!" });
+  }
+
   const newUser = await User.create({
     name,
     email,
     password
   });
-
   const otpToken = generateOtpToken();
-
-  // await EmailVerificationToken.create({
-  //   owner: newUser._id,
-  //   token: otpToken
-  // });
 
   sendVerificationMail(otpToken, {
     name,
@@ -100,7 +100,7 @@ export const resendVerificationToken: RequestHandler = async (
         error: "Invalid request."
       })
   }
-
+  
   const user = await User.findById(userId);
 
   if (!user) {
@@ -110,6 +110,12 @@ export const resendVerificationToken: RequestHandler = async (
         error: "Invalid request."
       })
   }
+
+  if (user.verified) {
+    return res
+      .status(422)
+      .json({ error: "Your account is already verified." });
+  } 
 
   await EmailVerificationToken.findOneAndDelete({
     owner: userId

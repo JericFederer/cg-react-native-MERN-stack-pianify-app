@@ -24,8 +24,9 @@ export const createAudio: RequestHandler = async (
   const audioFile = req.files?.file as formidable.File;
   const ownerId = req.user.id;
 
-  if (!audioFile)
+  if (!audioFile) {
     return res.status(422).json({ error: "Audio file is missing." });
+  }
 
   const audioRes = await cloudinary.uploader.upload(audioFile.filepath, {
     resource_type: "video",
@@ -35,7 +36,7 @@ export const createAudio: RequestHandler = async (
     about,
     category,
     owner: ownerId,
-    file: { url: audioRes.url, publicId: audioRes.public_id },
+    file: { url: audioRes.secure_url, publicId: audioRes.public_id },
   });
 
   if (poster) {
@@ -54,16 +55,14 @@ export const createAudio: RequestHandler = async (
 
   await newAudio.save();
 
-  res
-    .status(201)
-    .json({
-      audio: {
-        title,
-        about,
-        file: newAudio.file.url,
-        poster: newAudio.poster?.url,
-      },
-    });
+  res.status(201).json({
+    audio: {
+      title,
+      about,
+      file: newAudio.file.url,
+      poster: newAudio.poster?.url,
+    },
+  });
 };
 
 export const updateAudio: RequestHandler = async (
