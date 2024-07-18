@@ -22,3 +22,25 @@ server/.env
 server/npm-debug.log*
 server/yarn-debug.log*
 server/yarn-error.log*
+
+# dependencies
+PianifyPlayer/node_modules
+PianifyPlayer/.pnp
+
+# testing
+PianifyPlayer/coverage
+
+# production
+PianifyPlayer/build
+
+# misc
+PianifyPlayer/.DS_Store
+PianifyPlayer/.env.local
+PianifyPlayer/.env.development.local
+PianifyPlayer/.env.test.local
+PianifyPlayer/.env.production.local
+PianifyPlayer/.env
+
+PianifyPlayer/npm-debug.log*
+PianifyPlayer/yarn-debug.log*
+PianifyPlayer/yarn-error.log*
