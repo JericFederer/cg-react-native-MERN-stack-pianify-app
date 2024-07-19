@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 
-import SignUp from "@/screens/SignUp";
+import SignUp from "@/views/auth/SignUp";
 
 const App = () => {
   return (
