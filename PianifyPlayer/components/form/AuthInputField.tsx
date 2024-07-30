@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, ReactNode, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   TextInputProps,
   StyleProp,
   ViewStyle,
+  Pressable,
 } from 'react-native';
 import { useFormikContext } from 'formik';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
@@ -24,6 +25,8 @@ interface Props {
   secureTextEntry?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   onChange?: (text: string) => void;
+  rightIcon?: ReactNode;
+  onRightIconPress?(): void;
 }
 
 const AuthInputField: FC<Props> = props => {
@@ -34,7 +37,7 @@ const AuthInputField: FC<Props> = props => {
     handleBlur,
     values,
     errors,
-    touched
+    touched,
   } = useFormikContext<{ [key: string]: string }>();
 
   const {
@@ -45,6 +48,8 @@ const AuthInputField: FC<Props> = props => {
     secureTextEntry,
     containerStyle,
     name,
+    rightIcon,
+    onRightIconPress,
   } = props;
 
   const errorMsg = touched[name] && errors[name] ? errors[name] : '';
@@ -88,6 +93,15 @@ const AuthInputField: FC<Props> = props => {
         value={ values[name] }
         onBlur={ handleBlur(name) }
       />
+      { 
+        rightIcon
+        ? (
+            <Pressable onPress={ onRightIconPress } style={ styles.rightIcon }>
+              { rightIcon }
+            </Pressable>
+          )
+        : null
+      }
     </Animated.View>
   );
 };
@@ -104,6 +118,15 @@ const styles = StyleSheet.create({
   },
   errorMsg: {
     color: colors.ERROR,
+  },
+  rightIcon: {
+    width: 45,
+    height: 45,
+    position: 'absolute',
+    top: 25,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

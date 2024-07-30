@@ -3,14 +3,19 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Image,
+  Text,
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import Icon from 'react-native-vector-icons/AntDesign';
 
 import SubmitBtn from '@/components/form/SubmitBtn';
 import AuthInputField from '../../components/form/AuthInputField';
 import colors from '../../constants/colors';
+import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
+import AppLink from '@/components/ui/AppLink';
+import CircleUi from '@/components/ui/CircleUi';
+import AuthFormContainer from '@/components/AuthFormContainer';
 
 const signupSchema = yup.object({
   name: yup
@@ -43,62 +48,70 @@ const initialValues = {
 };
 
 const SignUp: FC<Props> = props => {
-  const [userInfo, setUserInfo] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
+  const [secureEntry, setSecureEntry] = useState(true);
+
+  const togglePasswordView = () => {
+    setSecureEntry(!secureEntry);
+  };
 
   return (
-    <SafeAreaView style={ styles.container }>
-      <Formik
-        onSubmit={ values => {
-          console.log(values);
-        }}
-        initialValues={ initialValues }
-        validationSchema={ signupSchema }
-      >
-        {
-          ({ handleSubmit, handleChange, values, errors }) => {
-            return (
+    <Formik
+      onSubmit={ values => {
+        console.log(values);
+      }}
+      initialValues={ initialValues }
+      validationSchema={ signupSchema }
+    >
+      {
+        ({ handleSubmit, handleChange, values, errors }) => {
+          return (
+            <AuthFormContainer
+              heading="P i a n i f y"
+              subHeading="Let's get started by creating your account."
+            >
               <View style={ styles.formContainer }>
                 <AuthInputField
                   name="name"
-                  placeholder="John Doe"
+                  placeholder="Please enter your name"
                   label="Name"
                   containerStyle={ styles.marginBottom }
                 />
+
                 <AuthInputField
                   name="email"
-                  placeholder="john@email.com"
+                  placeholder="Please enter your email address"
                   label="Email"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   containerStyle={ styles.marginBottom }
                 />
+
                 <AuthInputField
                   name="password"
-                  placeholder="********"
+                  placeholder="Please enter your password"
                   label="Password"
                   autoCapitalize="none"
-                  secureTextEntry
+                  secureTextEntry={ secureEntry }
                   containerStyle={ styles.marginBottom }
+                  rightIcon={ <PasswordVisibilityIcon privateIcon={ secureEntry } /> }
+                  onRightIconPress={ togglePasswordView }
                 />
+
                 <SubmitBtn
                   title="Sign Up"
-                  customStyle={{ marginTop: 50 }}
+                  customStyle={{ marginTop: 30 }}
                 />
-                <Icon
-                 name="stepforward"
-                 color="white"
-                 size={ 30 }
-                />
+
+                <View style={ styles.linkContainer }>
+                  <AppLink title="Sign In" />
+                  <AppLink title="Forgot Password" />
+                </View>
               </View>
-            );
-          }
+            </AuthFormContainer>
+          );
         }
-      </Formik>
-    </SafeAreaView>
+      }
+    </Formik>
   );
 };
 
@@ -111,10 +124,15 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
-    paddingHorizontal: 15,
   },
   marginBottom: {
     marginBottom: 20,
+  },
+  linkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 20,
   },
 });
 
