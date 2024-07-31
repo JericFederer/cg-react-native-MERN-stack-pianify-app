@@ -6,7 +6,7 @@ import {
   Image,
   Text,
 } from 'react-native';
-import { Formik } from 'formik';
+// import { Formik } from 'formik';
 import * as yup from 'yup';
 
 import SubmitBtn from '@/components/form/SubmitBtn';
@@ -16,6 +16,7 @@ import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
 import AppLink from '@/components/ui/AppLink';
 import CircleUi from '@/components/ui/CircleUi';
 import AuthFormContainer from '@/components/AuthFormContainer';
+import Form from '@/components/form';
 
 const signupSchema = yup.object({
   name: yup
@@ -55,63 +56,57 @@ const SignUp: FC<Props> = props => {
   };
 
   return (
-    <Formik
+    <Form
       onSubmit={ values => {
         console.log(values);
       }}
       initialValues={ initialValues }
       validationSchema={ signupSchema }
     >
-      {
-        ({ handleSubmit, handleChange, values, errors }) => {
-          return (
-            <AuthFormContainer
-              heading="P i a n i f y"
-              subHeading="Let's get started by creating your account."
-            >
-              <View style={ styles.formContainer }>
-                <AuthInputField
-                  name="name"
-                  placeholder="Please enter your name"
-                  label="Name"
-                  containerStyle={ styles.marginBottom }
-                />
+      <AuthFormContainer
+        heading="P i a n i f y"
+        subHeading="Let's get started by creating your account."
+      >
+        <View style={ styles.formContainer }>
+          <AuthInputField
+            name="name"
+            placeholder="Please enter your name"
+            label="Name"
+            containerStyle={ styles.marginBottom }
+          />
 
-                <AuthInputField
-                  name="email"
-                  placeholder="Please enter your email address"
-                  label="Email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  containerStyle={ styles.marginBottom }
-                />
+          <AuthInputField
+            name="email"
+            placeholder="Please enter your email address"
+            label="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            containerStyle={ styles.marginBottom }
+          />
 
-                <AuthInputField
-                  name="password"
-                  placeholder="Please enter your password"
-                  label="Password"
-                  autoCapitalize="none"
-                  secureTextEntry={ secureEntry }
-                  containerStyle={ styles.marginBottom }
-                  rightIcon={ <PasswordVisibilityIcon privateIcon={ secureEntry } /> }
-                  onRightIconPress={ togglePasswordView }
-                />
+          <AuthInputField
+            name="password"
+            placeholder="Please enter your password"
+            label="Password"
+            autoCapitalize="none"
+            secureTextEntry={ secureEntry }
+            containerStyle={ styles.marginBottom }
+            rightIcon={ <PasswordVisibilityIcon privateIcon={ secureEntry } /> }
+            onRightIconPress={ togglePasswordView }
+          />
 
-                <SubmitBtn
-                  title="Sign Up"
-                  customStyle={{ marginTop: 30 }}
-                />
+          <SubmitBtn
+            title="Sign Up"
+            customStyle={{ marginTop: 30 }}
+          />
 
-                <View style={ styles.linkContainer }>
-                  <AppLink title="Sign In" />
-                  <AppLink title="Forgot Password" />
-                </View>
-              </View>
-            </AuthFormContainer>
-          );
-        }
-      }
-    </Formik>
+          <View style={ styles.linkContainer }>
+            <AppLink title="Sign In" />
+            <AppLink title="Forgot Password" />
+          </View>
+        </View>
+      </AuthFormContainer>
+    </Form>
   );
 };
 

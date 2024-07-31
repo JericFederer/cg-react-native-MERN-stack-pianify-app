@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Formik } from 'formik';
+import Form from '@/components/form';
 import * as yup from 'yup';
 
 import AuthInputField from '@/components/form/AuthInputField';
@@ -37,7 +37,7 @@ const SignIn: FC<Props> = props => {
   };
 
   return (
-    <Formik
+    <Form
       onSubmit={
         values => {
           console.log(values);
@@ -45,7 +45,10 @@ const SignIn: FC<Props> = props => {
       }
       initialValues={ initialValues }
       validationSchema={ signinSchema }>
-      <AuthFormContainer heading="Welcome back!">
+      <AuthFormContainer
+        heading="P i a n i f y"
+        subHeading="Welcome back!"
+      >
         <View style={ styles.formContainer }>
           <AuthInputField
             name="email"
@@ -55,6 +58,7 @@ const SignIn: FC<Props> = props => {
             autoCapitalize="none"
             containerStyle={ styles.marginBottom }
           />
+
           <AuthInputField
             name="password"
             placeholder="Please enter your password"
@@ -77,7 +81,7 @@ const SignIn: FC<Props> = props => {
           </View>
         </View>
       </AuthFormContainer>
-    </Formik>
+    </Form>
   );
 };
 
