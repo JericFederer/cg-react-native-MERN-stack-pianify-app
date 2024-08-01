@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   subHeading: { color: colors.CONTRAST, fontSize: 16 },
   headerContainer: { width: '100%', marginBottom: "30%" },
   image: {
-    height: "100%",
+    height: "40%",
     width: 100,
     marginBottom: 5,
   }

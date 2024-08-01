@@ -7,6 +7,8 @@ import Form from '@/components/form';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { AuthStackParamList } from '@/@types/navigation';
 
 const lostPasswordSchema = yup.object({
   email: yup
@@ -23,6 +25,8 @@ const initialValues = {
 };
 
 const LostPassword: FC<Props> = props => {
+  const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
+
   return (
     <Form
       onSubmit={values => {
@@ -49,8 +53,22 @@ const LostPassword: FC<Props> = props => {
           />
 
           <View style={ styles.linkContainer }>
-            <AppLink title="Sign in" />
-            <AppLink title="Sign up" />
+          <AppLink
+              title="Sign In"
+              onPress={
+                () => {
+                  navigation.navigate("SignIn")
+                }
+              }
+            />
+            <AppLink
+              title="Sign Up"
+              onPress={
+                () => {
+                  navigation.navigate("SignUp")
+                }
+              }
+            />
           </View>
         </View>
       </AuthFormContainer>

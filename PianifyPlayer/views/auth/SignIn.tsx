@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Form from '@/components/form';
 import * as yup from 'yup';
 
@@ -8,6 +8,8 @@ import SubmitBtn from '@/components/form/SubmitBtn';
 import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
 import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { AuthStackParamList } from '@/@types/navigation';
 
 const signinSchema = yup.object({
   email: yup
@@ -31,6 +33,7 @@ const initialValues = {
 
 const SignIn: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
+  const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
   const togglePasswordView = () => {
     setSecureEntry(!secureEntry);
@@ -44,7 +47,8 @@ const SignIn: FC<Props> = props => {
         }
       }
       initialValues={ initialValues }
-      validationSchema={ signinSchema }>
+      validationSchema={ signinSchema }
+    >
       <AuthFormContainer
         heading="P i a n i f y"
         subHeading="Welcome back!"
@@ -76,8 +80,22 @@ const SignIn: FC<Props> = props => {
           />
 
           <View style={ styles.linkContainer }>
-            <AppLink title="Forgot Password" />
-            <AppLink title="Sign up" />
+            <AppLink
+              title="Forgot Password"
+              onPress={
+                () => {
+                  navigation.navigate("LostPassword")
+                }
+              }
+            />
+            <AppLink
+              title="Sign Up"
+              onPress={
+                () => {
+                  navigation.navigate("SignUp")
+                }
+              }
+            />
           </View>
         </View>
       </AuthFormContainer>
@@ -86,7 +104,11 @@ const SignIn: FC<Props> = props => {
 };
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1
+  },
   formContainer: {
+    flex: 1,
     width: '100%',
   },
   marginBottom: {
