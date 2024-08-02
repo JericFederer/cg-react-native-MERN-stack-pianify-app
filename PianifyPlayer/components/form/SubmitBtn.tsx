@@ -1,22 +1,22 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { StyleSheet } from 'react-native';
 import { useFormikContext } from 'formik';
 
-import AppButton from '@/components/ui/AppButton';
+import AppButton from '../ui/AppButton';
 
 interface Props {
   title: string;
   customStyle?: object;
 }
 
-const SubmitBtn: FC<Props> = (props) => {
-  const { handleSubmit } = useFormikContext();
-
+const SubmitBtn: FC<Props> = props => {
+  const { handleSubmit, isSubmitting } = useFormikContext();
   return (
     <AppButton
-      customStyle={ props.customStyle }
+      busy={ isSubmitting }
       onPress={ handleSubmit }
       title={ props.title }
+      customStyle={ props.customStyle }
     />
   );
 };

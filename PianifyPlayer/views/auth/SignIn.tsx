@@ -1,15 +1,17 @@
 import { FC, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FormikHelpers } from 'formik';
 import Form from '@/components/form';
 import * as yup from 'yup';
 
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { AuthStackParamList } from '@/@types/navigation';
 import AuthInputField from '@/components/form/AuthInputField';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
 import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { AuthStackParamList } from '@/@types/navigation';
+import client from '@/api/client';
 
 const signinSchema = yup.object({
   email: yup
@@ -26,6 +28,11 @@ const signinSchema = yup.object({
 
 interface Props {}
 
+interface SignInUserInfo {
+  email: string;
+  password: string;
+}
+
 const initialValues = {
   email: '',
   password: '',
@@ -39,16 +46,31 @@ const SignIn: FC<Props> = props => {
     setSecureEntry(!secureEntry);
   };
 
+  const handleSubmit = async (
+    values: SignInUserInfo,
+    actions: FormikHelpers<SignInUserInfo>,
+  ) => {
+    actions.setSubmitting(true);
+
+    try {
+      const { data } = await client.post('/auth/sign-in', {
+        ...values,
+      });
+
+      console.log(data);
+      
+    } catch (error) {
+      console.log('Sign in error: ', error);
+    }
+
+    actions.setSubmitting(false);
+  };
+
   return (
     <Form
-      onSubmit={
-        values => {
-          console.log(values);
-        }
-      }
+      onSubmit={ handleSubmit }
       initialValues={ initialValues }
-      validationSchema={ signinSchema }
-    >
+      validationSchema={ signinSchema }>
       <AuthFormContainer
         heading="P i a n i f y"
         subHeading="Welcome back!"
@@ -56,7 +78,7 @@ const SignIn: FC<Props> = props => {
         <View style={ styles.formContainer }>
           <AuthInputField
             name="email"
-            placeholder="Please enter your email"
+            placeholder="john@email.com"
             label="Email"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -65,15 +87,15 @@ const SignIn: FC<Props> = props => {
 
           <AuthInputField
             name="password"
-            placeholder="Please enter your password"
+            placeholder="********"
             label="Password"
             autoCapitalize="none"
             secureTextEntry={ secureEntry }
             containerStyle={ styles.marginBottom }
-            rightIcon={ <PasswordVisibilityIcon privateIcon={ secureEntry } />}
+            rightIcon={ <PasswordVisibilityIcon privateIcon={ secureEntry } /> }
             onRightIconPress={ togglePasswordView }
           />
-          
+
           <SubmitBtn
             title="Sign In"
             customStyle={{ marginTop: 30 }}
@@ -81,18 +103,19 @@ const SignIn: FC<Props> = props => {
 
           <View style={ styles.linkContainer }>
             <AppLink
-              title="Forgot Password"
+              title="I Lost My Password"
               onPress={
                 () => {
-                  navigation.navigate("LostPassword")
+                  navigation.navigate('LostPassword');
                 }
               }
             />
+
             <AppLink
-              title="Sign Up"
+              title="Sign up"
               onPress={
                 () => {
-                  navigation.navigate("SignUp")
+                  navigation.navigate('SignUp');
                 }
               }
             />
@@ -104,11 +127,7 @@ const SignIn: FC<Props> = props => {
 };
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1
-  },
   formContainer: {
-    flex: 1,
     width: '100%',
   },
   marginBottom: {

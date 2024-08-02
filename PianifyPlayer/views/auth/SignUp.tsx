@@ -3,9 +3,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import * as yup from 'yup';
 import { FormikHelpers } from 'formik';
-import axios from 'axios';
+import * as yup from 'yup';
 
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { AuthStackParamList } from '@/@types/navigation';
@@ -16,6 +15,7 @@ import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
 import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
 import Form from '@/components/form';
+import client from '@/api/client';
 
 const signupSchema = yup.object({
   name: yup
@@ -65,16 +65,22 @@ const SignUp: FC<Props> = props => {
     values: NewUser,
     actions: FormikHelpers<NewUser>,
   ) => {
+    actions.setSubmitting(true);
     try {
-      // we want to send these information to our api
-      const response = await axios.post('http://localhost:1111/auth/create', {
-        ...values,
-      });
+      const data = await client.post(
+        '/auth/create',
+        {
+          ...values,
+        }
+      )
 
-      console.log(response);
+      console.log(data);
+      navigation.navigate('Verification', { userInfo: data.user });
     } catch (error) {
       console.log('Sign up error: ', error);
     }
+
+    actions.setSubmitting(false);
   };
 
   return (
