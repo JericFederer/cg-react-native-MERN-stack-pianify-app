@@ -1,3 +1,4 @@
+import { useDispatch } from 'react-redux';
 import { FC, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FormikHelpers } from 'formik';
@@ -6,6 +7,8 @@ import * as yup from 'yup';
 
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { AuthStackParamList } from '@/@types/navigation';
+import { updateLoggedInState, updateProfile } from '@/store/auth';
+import { Keys, saveToAsyncStorage } from '@/utils/asyncStorage';
 import AuthInputField from '@/components/form/AuthInputField';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
@@ -41,6 +44,7 @@ const initialValues = {
 const SignIn: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
+  const dispatch = useDispatch();
 
   const togglePasswordView = () => {
     setSecureEntry(!secureEntry);
@@ -57,7 +61,10 @@ const SignIn: FC<Props> = props => {
         ...values,
       });
 
-      console.log(data);
+      await saveToAsyncStorage(Keys.AUTH_TOKEN, data.token);
+
+      dispatch(updateProfile(data.profile));
+      dispatch(updateLoggedInState(true));
       
     } catch (error) {
       console.log('Sign in error: ', error);
@@ -78,7 +85,7 @@ const SignIn: FC<Props> = props => {
         <View style={ styles.formContainer }>
           <AuthInputField
             name="email"
-            placeholder="john@email.com"
+            placeholder="Please enter your email address"
             label="Email"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -87,7 +94,7 @@ const SignIn: FC<Props> = props => {
 
           <AuthInputField
             name="password"
-            placeholder="********"
+            placeholder="Please enter your password"
             label="Password"
             autoCapitalize="none"
             secureTextEntry={ secureEntry }
@@ -103,7 +110,7 @@ const SignIn: FC<Props> = props => {
 
           <View style={ styles.linkContainer }>
             <AppLink
-              title="I Lost My Password"
+              title="Forgot Password"
               onPress={
                 () => {
                   navigation.navigate('LostPassword');

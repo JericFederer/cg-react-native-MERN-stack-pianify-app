@@ -13,6 +13,10 @@ import profileRouter from "./routers/profile";
 import historyRouter from "./routers/history";
 
 const app = express();
+const cors = require('cors');
+
+// * Enable CORS for all routes
+app.use(cors()); 
 
 // * MIDDLEWARE
 // * This will parse post request coming from a fetch api

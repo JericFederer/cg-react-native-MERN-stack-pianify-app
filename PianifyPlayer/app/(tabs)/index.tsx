@@ -1,14 +1,19 @@
-import { View, Text } from "react-native";
-import type { StatusBarStyle } from 'react-native';
-
+import React from "react";
+import { Provider } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
+
+import store from "@/store";
 import AuthNavigator from "@/navigation/AuthNavigator";
+import AppNavigator from "@/navigation";
+import AppContainer from "@/components/AppCotnainer";
 
 const App = () => {
   return (
-    <NavigationContainer independent={ true }>
-      <AuthNavigator />
-    </NavigationContainer>
+    <Provider store={ store }>
+      <AppContainer>
+        <AppNavigator />
+      </AppContainer>
+    </Provider>
   )
 }
 

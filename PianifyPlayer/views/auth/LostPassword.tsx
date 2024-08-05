@@ -1,14 +1,16 @@
 import { FC } from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as yup from 'yup';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
+import { AuthStackParamList } from '@/@types/navigation';
+import { FormikHelpers } from 'formik';
 import AuthInputField from '@/components/form/AuthInputField';
 import Form from '@/components/form';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { AuthStackParamList } from '@/@types/navigation';
+import client from '@/api/client';
 
 const lostPasswordSchema = yup.object({
   email: yup
@@ -20,23 +22,42 @@ const lostPasswordSchema = yup.object({
 
 interface Props {}
 
+interface InitialValue {
+  email: string;
+}
+
 const initialValues = {
   email: '',
 };
 
+const handleSubmit = async (
+  values: InitialValue,
+  actions: FormikHelpers<InitialValue>,
+) => {
+  actions.setSubmitting(true);
+  try {
+    const { data } = await client.post('/auth/password-reset', {
+      ...values,
+    });
+
+    console.log(data);
+  } catch (error) {
+    console.log('Lost Password error: ', error);
+  }
+
+  actions.setSubmitting(false);
+};
+
 const LostPassword: FC<Props> = props => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
-
   return (
     <Form
-      onSubmit={values => {
-        console.log(values);
-      }}
-      initialValues={ initialValues}
+      onSubmit={ handleSubmit }
+      initialValues={ initialValues }
       validationSchema={ lostPasswordSchema }>
       <AuthFormContainer
-        heading="Password Reset"
-        subHeading="Oops, did you forget your password? Don't worry, we'll help you get back in">
+        heading="Forget Password!"
+        subHeading="Oops, did you forget your password? Don't worry, we'll help you get back in.">
         <View style={ styles.formContainer }>
           <AuthInputField
             name="email"
@@ -47,13 +68,10 @@ const LostPassword: FC<Props> = props => {
             containerStyle={ styles.marginBottom }
           />
 
-          <SubmitBtn
-            title="Send Link"
-            customStyle={{ marginTop: 30 }}
-          />
+          <SubmitBtn title="Send link" />
 
           <View style={ styles.linkContainer }>
-          <AppLink
+            <AppLink
               title="Sign In"
               onPress={
                 () => {
