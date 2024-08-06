@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import store from "@/store";
 import AuthNavigator from "@/navigation/AuthNavigator";
 import AppNavigator from "@/navigation";
-import AppContainer from "@/components/AppCotnainer";
+import AppContainer from "@/components/AppContainer";
 
 const App = () => {
   return (
