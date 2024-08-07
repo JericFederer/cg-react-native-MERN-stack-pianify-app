@@ -5,7 +5,7 @@ import DocumentPicker, {
   DocumentPickerOptions,
   DocumentPickerResponse,
 } from 'react-native-document-picker';
-import { PlatformTypes } from 'react-native-document-picker/lib/typescript/fileTypes';
+import { SupportedPlatforms } from 'react-native-document-picker/lib/typescript/fileTypes';
 
 import colors from '@/constants/colors';
 
@@ -14,7 +14,7 @@ interface Props {
   btnTitle?: string;
   style?: StyleProp<ViewStyle>;
   onSelect(file: DocumentPickerResponse): void;
-  options?: DocumentPickerOptions;
+  options?: DocumentPickerOptions<SupportedPlatforms>;
 }
 
 const FileSelector: FC<Props> = ({

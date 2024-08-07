@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
@@ -55,6 +55,7 @@ const AppNavigator: FC<Props> = props => {
   }, []);
 
   return (
+    
     <NavigationContainer
       independent={ true }
       theme={ AppTheme }
