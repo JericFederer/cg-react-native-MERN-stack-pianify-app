@@ -2,6 +2,7 @@ import { FC, useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, TextInput, View, Text } from 'react-native';
 import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack/types';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 
 import { AuthStackParamList } from '@/@types/navigation';
 import AppLink from '@/components/ui/AppLink';
@@ -10,6 +11,9 @@ import OTPField from '@/components/ui/OTPField';
 import AppButton from '@/components/ui/AppButton';
 import client from '@/api/client';
 import colors from '@/constants/colors';
+import { updateNotification } from '@/store/notification';
+import catchAsyncError from '@/api/catchError';
+
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Verification'>;
 
@@ -22,7 +26,7 @@ const Verification: FC<Props> = ({ route }) => {
   const [submitting, setSubmitting] = useState(false);
   const [coundDown, setCoundDown] = useState(60);
   const [canSendNewOtpRequest, setCanSendNewOtpRequest] = useState(false);
-
+  const dispatch = useDispatch();
   const { userInfo } = route.params;
 
   const inputRef = useRef<TextInput>(null);
@@ -56,20 +60,27 @@ const Verification: FC<Props> = ({ route }) => {
   });
 
   const handleSubmit = async () => {
-    if (!isValidOtp) return;
+    if (!isValidOtp)
+      return dispatch(
+        updateNotification({message: 'Invalid OTP.', type: 'error'}),
+      );
     setSubmitting(true);
     try {
       const { data } = await client.post('/auth/verify-email', {
         userId: userInfo.id,
         token: otp.join(''),
       });
+      dispatch(updateNotification({ message: data.message, type: 'success' }));
+
       // navigate back to sign in
       navigation.navigate('SignIn');
     } catch (error) {
-      console.log('Error inside Verification: ', error);
+      const errorMessage = catchAsyncError(error);
+      dispatch(updateNotification({ message: errorMessage, type: 'error' }));
     }
     setSubmitting(false);
   };
+
 
   const requestForOTP = async () => {
     setCoundDown(60);

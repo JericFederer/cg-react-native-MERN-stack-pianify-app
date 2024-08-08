@@ -4,6 +4,7 @@ import {
   View,
 } from 'react-native';
 import { FormikHelpers } from 'formik';
+import { useDispatch } from 'react-redux';
 import * as yup from 'yup';
 
 import { NavigationProp, useNavigation } from '@react-navigation/native';
@@ -16,6 +17,8 @@ import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
 import Form from '@/components/form';
 import client from '@/api/client';
+import catchAsyncError from '@/api/catchError';
+import { updateNotification } from '@/store/notification';
 
 const signupSchema = yup.object({
   name: yup
@@ -55,6 +58,7 @@ const initialValues = {
 
 const SignUp: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
+  const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
   const togglePasswordView = () => {
@@ -67,19 +71,15 @@ const SignUp: FC<Props> = props => {
   ) => {
     actions.setSubmitting(true);
     try {
-      const data = await client.post(
-        '/auth/create',
-        {
-          ...values,
-        }
-      )
+      const { data } = await client.post('/auth/create', {
+        ...values,
+      });
 
-      console.log(data);
       navigation.navigate('Verification', { userInfo: data.user });
     } catch (error) {
-      console.log('Sign up error: ', error);
+      const errorMessage = catchAsyncError(error);
+      dispatch(updateNotification({ message: errorMessage, type: 'error' }));
     }
-
     actions.setSubmitting(false);
   };
 

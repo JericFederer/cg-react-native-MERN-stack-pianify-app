@@ -15,6 +15,8 @@ import PasswordVisibilityIcon from '@/components/ui/PasswordVisibilityIcon';
 import AppLink from '@/components/ui/AppLink';
 import AuthFormContainer from '@/components/AuthFormContainer';
 import client from '@/api/client';
+import catchAsyncError from '@/api/catchError';
+import { updateNotification } from '@/store/notification';
 
 const signinSchema = yup.object({
   email: yup
@@ -55,7 +57,6 @@ const SignIn: FC<Props> = props => {
     actions: FormikHelpers<SignInUserInfo>,
   ) => {
     actions.setSubmitting(true);
-
     try {
       const { data } = await client.post('/auth/sign-in', {
         ...values,
@@ -65,9 +66,9 @@ const SignIn: FC<Props> = props => {
 
       dispatch(updateProfile(data.profile));
       dispatch(updateLoggedInState(true));
-      
     } catch (error) {
-      console.log('Sign in error: ', error);
+      const errorMessage = catchAsyncError(error);
+      dispatch(updateNotification({ message: errorMessage, type: 'error' }));
     }
 
     actions.setSubmitting(false);

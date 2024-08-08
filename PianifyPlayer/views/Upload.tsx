@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import React, { FC, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -20,7 +20,9 @@ import AppButton from '@/components/ui/AppButton';
 import colors from '@/constants/colors';
 import client from '@/api/client';
 import Progress from '@/components/ui/Progress';
-
+import { useDispatch } from 'react-redux';
+import catchAsyncError from '@/api/catchError';
+import { updateNotification } from '@/store/notification';
 
 interface FormFields {
   title: string;
@@ -39,14 +41,14 @@ const defaultForm: FormFields = {
 };
 
 const audioInfoSchema = yup.object().shape({
-  title: yup.string().trim().required('Title is missing.'),
-  category: yup.string().oneOf(categories, 'Category is missing.'),
-  about: yup.string().trim().required('About is missing.'),
+  title: yup.string().trim().required('Title is missing!'),
+  category: yup.string().oneOf(categories, 'Category is missing!'),
+  about: yup.string().trim().required('About is missing!'),
   file: yup.object().shape({
-    uri: yup.string().required('Audio file is missing.'),
-    name: yup.string().required('Audio file is missing.'),
-    type: yup.string().required('Audio file is missing.'),
-    size: yup.number().required('Audio file is missing.'),
+    uri: yup.string().required('Audio file is missing!'),
+    name: yup.string().required('Audio file is missing!'),
+    type: yup.string().required('Audio file is missing!'),
+    size: yup.number().required('Audio file is missing!'),
   }),
   poster: yup.object().shape({
     uri: yup.string(),
@@ -60,13 +62,14 @@ interface Props {}
 
 const Upload: FC<Props> = props => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [audioInfo, setAudioInfo] = useState({ ...defaultForm });
+  const [audioInfo, setAudioInfo] = useState({...defaultForm});
   const [uploadProgress, setUploadProgress] = useState(0);
   const [busy, setBusy] = useState(false);
 
+  const dispatch = useDispatch();
+
   const handleUpload = async () => {
     setBusy(true);
-
     try {
       const finalData = await audioInfoSchema.validate(audioInfo);
 
@@ -89,8 +92,6 @@ const Upload: FC<Props> = props => {
         });
 
       const token = await getFromAsyncStorage(Keys.AUTH_TOKEN);
-
-      console.log(token);
 
       const { data } = await client.post('/audio/create', formData, {
         headers: {
@@ -117,14 +118,9 @@ const Upload: FC<Props> = props => {
 
       console.log(data);
     } catch (error) {
-      if (error instanceof yup.ValidationError) {
-        console.log('Validation error: ', error.message);
-      } else {
-        console.log(error.response.data);
-      }
-      
+      const errorMessage = catchAsyncError(error);
+      dispatch(updateNotification({ message: errorMessage, type: 'error' }));
     }
-
     setBusy(false);
   };
 
@@ -143,7 +139,7 @@ const Upload: FC<Props> = props => {
           options={{ type: [types.images] }}
           onSelect={
             poster => {
-              setAudioInfo({ ...audioInfo, poster });
+              setAudioInfo ({ ...audioInfo, poster });
             }
           }
         />
@@ -180,9 +176,11 @@ const Upload: FC<Props> = props => {
         />
 
         <Pressable
-          onPress={() => {
-            setShowCategoryModal(true);
-          }}
+          onPress={
+            () => {
+              setShowCategoryModal(true);
+            }
+          }
           style={ styles.categorySelector }>
           <Text style={ styles.categorySelectorTitle }>Category</Text>
           <Text style={ styles.selectedCategory }>{ audioInfo.category }</Text>
@@ -194,6 +192,12 @@ const Upload: FC<Props> = props => {
           style={ styles.input }
           numberOfLines={ 10 }
           multiline
+          onChangeText={
+            text => {
+              setAudioInfo({ ...audioInfo, about: text });
+            }
+          }
+          value={ audioInfo.about }
         />
 
         <CategorySelector
@@ -212,12 +216,12 @@ const Upload: FC<Props> = props => {
           }
           onSelect={
             item => {
-              setAudioInfo({...audioInfo, category: item });
+              setAudioInfo({ ...audioInfo, category: item });
             }
           }
         />
 
-        <View style={{marginVertical: 20}}>
+        <View style={{ marginVertical: 20 }}>
           {
             busy ? <Progress progress={ uploadProgress } /> : null
           }

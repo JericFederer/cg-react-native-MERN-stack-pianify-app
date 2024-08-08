@@ -43,7 +43,7 @@ export const { updateLoggedInState, updateProfile, updateBusyState } = slice.act
 
 export const getAuthState = createSelector(
   (state: RootState) => state,
-  authState => authState,
+  ({ auth }) => auth,
 );
 
 export default slice.reducer;
