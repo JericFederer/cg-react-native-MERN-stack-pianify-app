@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 
+import { updateNotification } from '@/store/notification';
 import { AudioData } from '@/@types/audio';
 import catchAsyncError from '@/api/catchError';
 import client from '@/api/client';
-import { updateNotification } from '@/store/notification';
 
 const fetchLatest = async (): Promise<AudioData[]> => {
   const { data } = await client('/audio/latest');
@@ -14,10 +14,22 @@ const fetchLatest = async (): Promise<AudioData[]> => {
 export const useFetchLatestAudios = () => {
   const dispatch = useDispatch();
 
-  const fetchLatest = async () => {
-    const { data } = await client('/audio/latest');
-    return data.audios;
-  };
+  return useQuery({
+    queryKey: ['latest-uploads'],
+    queryFn: () => fetchLatest()
+  });
+};
 
-  return fetchLatest
+const fetchRecommended = async (): Promise<AudioData[]> => {
+  const {data} = await client('/profile/recommended');
+  return data.audios;
+};
+
+export const useFetchRecommendedAudios = () => {
+  const dispatch = useDispatch();
+
+  return useQuery({
+    queryKey: ['recommended'],
+    queryFn: () => fetchRecommended()
+  });
 };
