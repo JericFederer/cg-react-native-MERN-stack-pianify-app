@@ -1,5 +1,6 @@
+import BasicModalContainer from './ui/BasicModalContainer';
 import colors from '@/constants/colors';
-import {useState} from 'react';
+import { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -36,60 +37,43 @@ const CategorySelector = <T extends any>({
   };
 
   return (
-    <Modal onRequestClose={onRequestClose} visible={visible} transparent>
-      <Pressable style={styles.backdrop} />
+    <BasicModalContainer visible={ visible } onRequestClose={ onRequestClose }>
+      <Text style={ styles.title }>{ title }</Text>
 
-      <View style={styles.modalContainer}>
-        <View style={styles.modal}>
-          <Text style={styles.title}>{title}</Text>
-
-          <ScrollView>
-            {data.map((item, index) => {
-              return (
-                <Pressable
-                  onPress={() => handleSelect(item, index)}
-                  key={index}
-                  style={styles.selectorContainer}>
-                  {selectedIndex === index ? (
+      <ScrollView>
+        {
+          data.map((item, index) => {
+            return (
+              <Pressable
+                onPress={
+                  () => handleSelect(item, index)
+                }
+                key={ index }
+                style={ styles.selectorContainer }>
+                {
+                  selectedIndex === index ? (
                     <MaterialComIcon
                       name="radiobox-marked"
-                      color={colors.SECONDARY}
+                      color={ colors.SECONDARY }
                     />
                   ) : (
                     <MaterialComIcon
                       name="radiobox-blank"
-                      color={colors.SECONDARY}
+                      color={ colors.SECONDARY }
                     />
-                  )}
-                  {renderItem(item)}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+                  )
+                }
+                { renderItem(item) }
+              </Pressable>
+            );
+          })
+        }
+      </ScrollView>
+    </BasicModalContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.INACTIVE_CONTRAST,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparet',
-  },
-  modal: {
-    width: '90%',
-    maxHeight: '50%',
-    borderRadius: 10,
-    padding: 10,
-    backgroundColor: colors.CONTRAST,
-  },
   title: {
     fontSize: 18,
     fontWeight: '700',

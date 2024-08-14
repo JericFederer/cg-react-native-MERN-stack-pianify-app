@@ -2,15 +2,19 @@ import { FC } from 'react';
 import { View, StyleSheet, Text, Image, Pressable } from 'react-native';
 
 import { useFetchRecommendedAudios } from '@/hooks/query';
+import { AudioData } from '@/@types/audio';
 import GridView from './ui/GridView';
 import PulseAnimationContainer from './ui/PulseAnimationContainer';
 import colors from '@/constants/colors';
 
-interface Props {}
+interface Props {
+  onAudioPress(item: AudioData, data: AudioData[]): void;
+  onAudioLongPress(item: AudioData, data: AudioData[]): void;
+}
 const dummyData = new Array(6).fill('');
 
-const RecommendedAudios: FC<Props> = props => {
-  const { data, isLoading } = useFetchRecommendedAudios();
+const RecommendedAudios: FC<Props> = ({ onAudioLongPress, onAudioPress }) => {
+  const { data = [], isLoading } = useFetchRecommendedAudios();
 
   const getPoster = (poster?: string) => {
     return poster ? { uri: poster } : require('../assets/music.png');
@@ -43,7 +47,13 @@ const RecommendedAudios: FC<Props> = props => {
         renderItem={
           item => {
             return (
-              <Pressable>
+              <Pressable
+                onPress={
+                  () => onAudioPress(item, data)
+                }
+                onLongPress={
+                  () => onAudioLongPress(item, data)
+                }>
                 <Image source={ getPoster(item.poster) } style={ styles.poster } />
                 <Text
                   numberOfLines={ 2 }
@@ -77,7 +87,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  poster: {width: '100%', aspectRatio: 1, borderRadius: 7},
+  poster: { width: '100%', aspectRatio: 1, borderRadius: 7 },
   dummyTitleView: {
     height: 20,
     width: 150,
