@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import colors from '../../constants/colors';
+import colors from '@/constants/colors';
 import Loader from './Loader';
 
 interface Props {
