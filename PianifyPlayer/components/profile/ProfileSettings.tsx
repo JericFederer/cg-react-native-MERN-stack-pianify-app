@@ -28,7 +28,7 @@ import AvatarField from '@/components/ui/AvatarField';
 import colors from '@/constants/colors';
 import AppButton from '@/components/ui/AppButton';
 import catchAsyncError from '@/api/catchError';
-import ReVerificationLink from '@components/ReVerificationLink';
+import ReVerificationLink from '@/components/ReVerificationLink';
 
 interface Props {}
 interface ProfileInfo {

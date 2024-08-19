@@ -15,7 +15,7 @@ import RecommendedAudios from '@/components/RecommendedAudios';
 import colors from '@/constants/colors';
 import catchAsyncError from '@/api/catchError';
 import LatestUploads from '@/components/LatestUploads';
-
+import useAudioController from '@/hooks/useAudioController';
 
 interface Props {}
 
@@ -24,6 +24,7 @@ const Home: FC<Props> = props => {
   const [selectedAudio, setSelectedAudio] = useState<AudioData>();
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [showPlaylistForm, setShowPlaylistForm] = useState(false);
+  const { onAudioPress } = useAudioController();
 
   const { data } = useFetchPlaylist();
 
@@ -98,19 +99,11 @@ const Home: FC<Props> = props => {
   return (
     <View style={ styles.container }>
       <LatestUploads
-        onAudioPress={
-          item => {
-            console.log(item);
-          }
-        }
+        onAudioPress={ onAudioPress }
         onAudioLongPress={ handleOnLongPress }
       />
       <RecommendedAudios
-        onAudioPress={
-          item => {
-            console.log(item);
-          }
-        }
+        onAudioPress={ onAudioPress }
         onAudioLongPress={ handleOnLongPress }
       />
       <OptionsModal

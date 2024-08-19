@@ -2,8 +2,11 @@ import { FC } from 'react';
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Octicons from 'react-native-vector-icons/Octicons';
 
 import { UserProfile } from '@/store/auth';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { ProfileNavigatorStackParamList } from '@/@types/navigation';
 import AvatarField from './ui/AvatarField';
 import colors from '@/constants/colors';
 
@@ -12,6 +15,8 @@ interface Props {
 }
 
 const ProfileContainer: FC<Props> = ({ profile }) => {
+  const { navigate } =
+    useNavigation<NavigationProp<ProfileNavigatorStackParamList>>();
   if (!profile) return null;
 
   return (
@@ -22,7 +27,13 @@ const ProfileContainer: FC<Props> = ({ profile }) => {
         <Text style={ styles.profileName }>{ profile.name }</Text>
         <View style={ styles.flexRow }>
           <Text style={ styles.email }>{ profile.email }</Text>
-          <MaterialIcon name="verified" size={ 15 } color={ colors.SECONDARY } />
+          {
+            profile.verified ? (
+              <MaterialIcon name="verified" size={ 15 } color={ colors.SECONDARY } />
+            ) : (
+              <Octicons name="unverified" size={ 15 } color={ colors.SECONDARY } />
+            )
+          }
         </View>
 
         <View style={ styles.flexRow }>
@@ -35,7 +46,11 @@ const ProfileContainer: FC<Props> = ({ profile }) => {
         </View>
       </View>
 
-      <Pressable style={ styles.settingsBtn }>
+      <Pressable
+        onPress={
+          () => navigate('ProfileSettings')
+        }
+        style={ styles.settingsBtn }>
         <AntDesign name="setting" size={ 22 } color={ colors.CONTRAST } />
       </Pressable>
     </View>
