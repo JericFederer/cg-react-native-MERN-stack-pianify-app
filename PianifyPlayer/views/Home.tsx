@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
+import { View, StyleSheet, Pressable, Text, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import MaterialComIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -16,6 +16,7 @@ import colors from '@/constants/colors';
 import catchAsyncError from '@/api/catchError';
 import LatestUploads from '@/components/LatestUploads';
 import useAudioController from '@/hooks/useAudioController';
+import AppView from '@/components/AppView';
 
 interface Props {}
 
@@ -36,6 +37,7 @@ const Home: FC<Props> = props => {
 
     try {
       const client = await getClient();
+
       const { data } = await client.post('/favorite?audioId=' + selectedAudio.id);
     } catch (error) {
       const errorMessage = catchAsyncError(error);
@@ -57,9 +59,7 @@ const Home: FC<Props> = props => {
   };
 
   const handlePlaylistSubmit = async (value: PlaylistInfo) => {
-    if (!value.title.trim()) {
-      return;
-    }
+    if (!value.title.trim()) return;
 
     try {
       const client = await getClient();
@@ -97,76 +97,80 @@ const Home: FC<Props> = props => {
   };
 
   return (
-    <View style={ styles.container }>
-      <LatestUploads
-        onAudioPress={ onAudioPress }
-        onAudioLongPress={ handleOnLongPress }
-      />
-      <RecommendedAudios
-        onAudioPress={ onAudioPress }
-        onAudioLongPress={ handleOnLongPress }
-      />
-      <OptionsModal
-        visible={ showOptions }
-        onRequestClose={
-          () => {
-            setShowOptions(false);
+    <AppView>
+      <ScrollView contentContainerStyle={ styles.container }>
+        <LatestUploads
+          onAudioPress={ onAudioPress }
+          onAudioLongPress={ handleOnLongPress }
+        />
+        <RecommendedAudios
+          onAudioPress={ onAudioPress }
+          onAudioLongPress={ handleOnLongPress }
+        />
+        <OptionsModal
+          visible={ showOptions }
+          onRequestClose={
+            () => {
+              setShowOptions(false);
+            }
           }
-        }
-        options={[
-          {
-            title: 'Add to playlist',
-            icon: 'playlist-music',
-            onPress: handleOnAddToPlaylist,
-          },
-          {
-            title: 'Add to favorite',
-            icon: 'cards-heart',
-            onPress: handleOnFavPress,
-          },
-        ]}
-        renderItem={
-          item => {
-            return (
-              <Pressable onPress={ item.onPress } style={ styles.optionContainer }>
-                <MaterialComIcon
-                  size={ 24 }
-                  color={ colors.PRIMARY }
-                  name={ item.icon }
-                />
-                <Text style={ styles.optionLabel }>{ item.title }</Text>
-              </Pressable>
-            );
+          options={
+            [
+              {
+                title: 'Add to playlist',
+                icon: 'playlist-music',
+                onPress: handleOnAddToPlaylist,
+              },
+              {
+                title: 'Add to favorite',
+                icon: 'cards-heart',
+                onPress: handleOnFavPress,
+              },
+            ]
           }
-        }
-      />
-      <PlayListModal
-        visible={ showPlaylistModal }
-        onRequestClose={
-          () => {
-            setShowPlaylistModal(false);
+          renderItem={
+            item => {
+              return (
+                <Pressable onPress={ item.onPress } style={ styles.optionContainer }>
+                  <MaterialComIcon
+                    size={ 24 }
+                    color={ colors.PRIMARY }
+                    name={ item.icon }
+                  />
+                  <Text style={ styles.optionLabel }>{ item.title }</Text>
+                </Pressable>
+              );
+            }
           }
-        }
-        list={ data || [] }
-        onCreateNewPress={
-          () => {
-            setShowPlaylistModal(false);
-            setShowPlaylistForm(true);
+        />
+        <PlayListModal
+          visible={ showPlaylistModal }
+          onRequestClose={
+            () => {
+              setShowPlaylistModal(false);
+            }
           }
-        }
-        onPlaylistPress={ updatePlaylist }
-      />
+          list={ data || [] }
+          onCreateNewPress={
+            () => {
+              setShowPlaylistModal(false);
+              setShowPlaylistForm(true);
+            }
+          }
+          onPlaylistPress={ updatePlaylist }
+        />
 
-      <PlaylistForm
-        visible={ showPlaylistForm }
-        onRequestClose={
-          () => {
-            setShowPlaylistForm(false);
+        <PlaylistForm
+          visible={ showPlaylistForm }
+          onRequestClose={
+            () => {
+              setShowPlaylistForm(false);
+            }
           }
-        }
-        onSubmit={ handlePlaylistSubmit }
-      />
-    </View>
+          onSubmit={ handlePlaylistSubmit }
+        />
+      </ScrollView>
+    </AppView>
   );
 };
 
@@ -179,11 +183,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
-  optionLabel: {
-    color: colors.PRIMARY,
-    fontSize: 16,
-    marginLeft: 5
-  },
+  optionLabel: {color: colors.PRIMARY, fontSize: 16, marginLeft: 5},
 });
 
 export default Home;
