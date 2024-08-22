@@ -15,8 +15,8 @@ import colors from '@/constants/colors';
 import useAudioController from '@/hooks/useAudioController';
 import Loader from './ui/Loader';
 import PlayPauseBtn from '@ui/PlayPauseBtn';
-import PlayerControler from '@ui/PlayerControler';
-import PlaybackRateSelector from '@ui/PlaybackRateSelector';
+import PlayerController from '@ui/PlayerController';
+import PlaybackRateSelector from './ui/PlaybackRateSelector';
 import AudioInfoContainer from './AudioInfoContainer';
 
 interface Props {
@@ -116,16 +116,16 @@ const AudioPlayer: FC<Props> = ({
 
           <View style={ styles.controles }>
             {/* Previous */}
-            <PlayerControler onPress={ handleOnPreviousPress } ignoreContainer>
+            <PlayerController onPress={ handleOnPreviousPress } ignoreContainer>
               <AntDesign
                 name="stepbackward"
                 size={ 24 }
                 color={ colors.CONTRAST }
               />
-            </PlayerControler>
+            </PlayerController>
 
             {/* Skip Time Left */}
-            <PlayerControler
+            <PlayerController
               onPress={
                 () => handleSkipTo('reverse')
               }
@@ -136,10 +136,10 @@ const AudioPlayer: FC<Props> = ({
                 color={ colors.CONTRAST }
               />
               <Text style={ styles.skipText }>-10s</Text>
-            </PlayerControler>
+            </PlayerController>
 
             {/* Play Pause */}
-            <PlayerControler>
+            <PlayerController>
               {
                 isBusy ? (
                   <Loader color={ colors.PRIMARY } />
@@ -151,10 +151,10 @@ const AudioPlayer: FC<Props> = ({
                   />
                 )
               }
-            </PlayerControler>
+            </PlayerController>
 
             {/* Skip Time Right */}
-            <PlayerControler
+            <PlayerController
               onPress={
                 () => handleSkipTo('forward')
               }
@@ -165,12 +165,12 @@ const AudioPlayer: FC<Props> = ({
                 color={ colors.CONTRAST }
               />
               <Text style={ styles.skipText }>+10s</Text>
-            </PlayerControler>
+            </PlayerController>
 
             {/* Next */}
-            <PlayerControler onPress={ handleOnNextPress } ignoreContainer>
+            <PlayerController onPress={ handleOnNextPress } ignoreContainer>
               <AntDesign name="stepforward" size={ 24 } color={ colors.CONTRAST } />
-            </PlayerControler>
+            </PlayerController>
           </View>
 
           <PlaybackRateSelector
@@ -180,13 +180,13 @@ const AudioPlayer: FC<Props> = ({
           />
 
           <View style={ styles.listOptionBtnContainer }>
-            <PlayerControler onPress={ onListOptionPress } ignoreContainer>
+            <PlayerController onPress={ onListOptionPress } ignoreContainer>
               <MaterialComIcon
                 name="playlist-music"
                 size={ 24 }
                 color={ colors.CONTRAST }
               />
-            </PlayerControler>
+            </PlayerController>
           </View>
         </View>
       </View>
