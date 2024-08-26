@@ -84,3 +84,18 @@ export const useFetchFavorite = () => {
     queryFn: () => fetchFavorites()
   });
 };
+
+const fetchHistories = async (): Promise<History[]> => {
+  const client = await getClient();
+  const { data } = await client('/history');
+  return data.histories;
+};
+
+export const useFetchHistories = () => {
+  const dispatch = useDispatch();
+
+  return useQuery({
+    queryKey: ['histories'],
+    queryFn: () => fetchHistories()
+  });
+};

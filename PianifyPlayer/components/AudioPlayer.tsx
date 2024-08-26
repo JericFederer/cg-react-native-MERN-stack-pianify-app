@@ -14,8 +14,8 @@ import AppModal from './ui/AppModal';
 import colors from '@/constants/colors';
 import useAudioController from '@/hooks/useAudioController';
 import Loader from './ui/Loader';
-import PlayPauseBtn from '@ui/PlayPauseBtn';
-import PlayerController from '@ui/PlayerController';
+import PlayPauseBtn from './ui/PlayPauseBtn';
+import PlayerController from './ui/PlayerController';
 import PlaybackRateSelector from './ui/PlaybackRateSelector';
 import AudioInfoContainer from './AudioInfoContainer';
 
